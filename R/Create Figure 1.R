@@ -1,7 +1,8 @@
 #*******************************************************************************
 #*
 #*
-#*                      Create Figure 1
+#*                               Create Figure 1                                                          
+#*          (Bubble plot of Healthcare field against Publication year)                  
 #*                                                                 
 #* Authors: Loukia M. Spineli & Katerina Papadimitropoulou
 #* Date: October 2022
@@ -14,13 +15,9 @@ list.of.packages <- c("ggplot2", "plyr")
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
 
 
+
 ## Load data ----
 load("./data/dataset.RData")
-
-
-
-## General information ----
-year <- dataset[, "Year"]; table(year)
 
 
 
