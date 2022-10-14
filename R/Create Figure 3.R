@@ -1,30 +1,28 @@
 #*******************************************************************************
 #*
 #*
-#*               Quality of the reported transitivity evaluation                             
-#*
-#*
+#*                               Create Figure 3                                                          
+#*            (Barplot on quality of transitivity quality over time)                                                                   
+#*                                                                 
+#* Author: Loukia M. Spineli 
+#* Date: October 2022
 #*******************************************************************************
 
 
 
 ## Load libraries ----
-list.of.packages <- c("readxl", "ggplot2", "dplyr", "writexl")
+list.of.packages <- c("ggplot2", "dplyr")
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
 
 
 
-## Load function ----
-source("./31_Analysis - Descriptives/Quality transitivity_function.R")
+## Load rnmamod R-package ----
+
 
 
 
 ## Load data ----
-path <- "./30_Analysis - Extraction/Loukia Extraction Package/Extracted reviews_Transitivity_Loukia_Version4.xlsm"
-dataset0 <- as.data.frame(read_excel(path, 
-                                     sheet = "Original", 
-                                     na = "NA"))[2:358, ]
-dataset <- subset(dataset0, PMID != 24756870) # Remove SR from Pollock (not an NMA!)
+load("./data/dataset.RData")
 
 
 
@@ -47,11 +45,6 @@ both_1 <- ifelse(dir_meth1 > 0 & indir_meth1 > 0, "Both",
                  ifelse(dir_meth1 > 0 & indir_meth1 == 0, "Only direct methods", 
                         ifelse(dir_meth1 == 0 & indir_meth1 > 0, "Only indirect methods", "No")))
 both1 <- both_1
-
-# Compared with Petropoulou - Planned & reported methods (Only direct/Only indirect/Both/No) - OK!
-#dataset0  <- subset(dataset, Year < 2016)
-#dir_meth01 <- apply(dataset0[, c(31, 33, 35, 39)], 1, function(x) {length(x[x == "Yes"])})
-#table(dir_meth01)
 
 # Did they abstained from conducting NMA?
 q_nma <- ifelse(is.element(dataset[, 69], c("No, they performed NMA", "Not applicable")), "No", "Υes")
@@ -100,13 +93,6 @@ for (i in 1:356) {
                                     proper_table = data_function[i, 5])
 }
 table(judge_quality)
-
-
-
-## Save as excel all SRs with their quality level ----
-dataset_to_save <- data.frame(dataset[, 2:6], data_function, judge_quality)
-colnames(dataset_to_save)[11] <- "Transitivity.evaluation.quality"
-write_xlsx(dataset_to_save, path = "./40_Manuscript preparation/Quality transitivity.xlsx") 
 
 
 
