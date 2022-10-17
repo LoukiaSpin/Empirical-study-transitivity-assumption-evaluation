@@ -104,6 +104,7 @@ names(q9_sub) <- c("Salanti 1", "Salanti 2&3", "Salanti 4", "Salanti 5",
 
 # Obtain 'Total' and '% Total' per multiple-choice
 total0 <- apply(q9_sub, 2, function(x) sum(x == "Yes"))
+total0[6] <- 99 # 'apply' treated 99 (for Subgroup) as NA, so I had to include it manually.
 total <- data.frame(total0, round((total0 / sum(total0)) * 100, 1))
 colnames(total) <- c("counts", "percent"); total
 
