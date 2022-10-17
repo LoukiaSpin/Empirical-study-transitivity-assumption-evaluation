@@ -2,7 +2,7 @@
 #*
 #*
 #*                               Create Figure 3                                                          
-#*            (Barplot on quality of transitivity quality over time)                                                                   
+#*        (Barplot on the quality of transitivity evaluation over time)                                                                          
 #*                                                                 
 #* Author: Loukia M. Spineli 
 #* Date: October 2022
@@ -10,15 +10,15 @@
 
 
 
+## Install the development version of rnmamod R-package ----
+#install.packages("devtools")
+#devtools::install_github("LoukiaSpin/rnmamod")
+
+
+
 ## Load libraries ----
 list.of.packages <- c("ggplot2", "dplyr", "rnmamod")
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
-
-
-
-## Install the development version of rnmamod R-package ----
-install.packages("devtools")
-devtools::install_github("LoukiaSpin/rnmamod")
 
 
 
@@ -137,6 +137,11 @@ colnames(data_function) <- item
 
 
 
+## Save as .RData to use for R-script 'Create Figure 4' ----
+save(data_function, file = "./data/judge_trans_quality.RData")
+
+
+
 ## Obtain transitivity quality evaluation for each review ----
 judge_quality <- rep(NA, dim(dataset)[1])
 for (i in 1:dim(dataset)[1]) {
@@ -149,7 +154,7 @@ for (i in 1:dim(dataset)[1]) {
 
 
 
-## Tabulate the number of reviews with 'High', 'Low' or 'Unclear' transitivity evaluation
+## Number of reviews with 'High', 'Low' or 'Unclear' transitivity evaluation ----
 table(judge_quality)
 
 
