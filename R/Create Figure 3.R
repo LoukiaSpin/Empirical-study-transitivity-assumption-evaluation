@@ -8,29 +8,19 @@
 #* Date: October 2022
 #*******************************************************************************
 
-
-
 ## Install the development version of rnmamod R-package ----
 #install.packages("devtools")
 #devtools::install_github("LoukiaSpin/rnmamod")
-
-
 
 ## Load libraries ----
 list.of.packages <- c("ggplot2", "dplyr", "rnmamod")
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
 
-
-
 ## Load data ----
 load("./data/dataset.RData")
 
-
-
 #' Create new variables from the extraction items to judge the quality of transitivity evaluation.
 #' We used our rule (section 2.4 - Quality of the reported transitivity evaluation) to create the new variables
-
-
 
 ## Planned in the protocol - Protocol level (Both/Only direct methods/Only indirect methods/No/No protocol) ----
 # Rename the levels of the item "Planned trans evaluation: No".
@@ -54,8 +44,6 @@ both0 <- ifelse(dir_meth > 0 & indir_meth > 0, "Both",
 both <- ifelse(both0 == "No" & q3_0 == "No protocol", "No protocol", 
                ifelse(both0 == "No" & q3_0 == "Yes", "No", both0))
 
-
-
 ## Planned & reported methods - Review level (Only direct/Only indirect/Both/No) ---- 
 #' Rename the levels of the item "If [6] is 'Yes', the authors reported the transitivity evaluation 
 #' in the Results or Discussion section".
@@ -77,12 +65,8 @@ both1 <- ifelse(dir_meth1 > 0 & indir_meth1 > 0, "Both",
                 ifelse(dir_meth1 > 0 & indir_meth1 == 0, "Only direct methods", 
                        ifelse(dir_meth1 == 0 & indir_meth1 > 0, "Only indirect methods", "No")))
 
-
-
 ## Did they abstain from conducting NMA? ----
 q_nma <- ifelse(is.element(dataset[, 68], c("No, they performed NMA", "Not applicable")), "No", "Υes")
-
-
 
 ## Discussed judgment based on NMA parameter (Only treatment effect/Other NMA parameter/Both/NMA not conducted/No) ----
 #' Rename the levels of the item "Parameter discussed: Not mentioned".
@@ -104,8 +88,6 @@ both_2 <- ifelse(treat_effect == "Yes" & other_par > 0, "Both",
 both2 <- ifelse(q14_2 == "Yes" & both_2 != "No", "No", both_2)
 both2[q_nma != "No"] <- "NMA not conducted"
 
-
-
 ## Proper ToC structure (Yes/No/No table) ----
 #' Count the 'Yes' across the items that refer to a proper structure of the Table of Characteristics:
 #' "Trial-level without arm-level", "Trial-level with arm-level", "Comparison-level with arm-level",
@@ -119,8 +101,6 @@ improper <- apply(dataset[, 93:94], 1, function(x) {length(x[x == "Yes"])})
 #' Characterise the review as having "Proper", "Improper", or "No table",
 proper_toc <- ifelse(proper == 1 & improper == 0, "Yes", 
                      ifelse(proper == 0 & improper == 1, "No", "No table"))
-
-
 
 ## Prepare dataset for the function 'trans_quality' ----
 item <- c("Planned in protocol",
@@ -140,8 +120,6 @@ colnames(data_function) <- item
 ## Save as .RData to use for R-script 'Create Figure 4' ----
 save(data_function, file = "./data/judge_trans_quality.RData")
 
-
-
 ## Obtain transitivity quality evaluation for each review ----
 judge_quality <- rep(NA, dim(dataset)[1])
 for (i in 1:dim(dataset)[1]) {
@@ -153,11 +131,8 @@ for (i in 1:dim(dataset)[1]) {
 }
 
 
-
 ## Number of reviews with 'High', 'Low' or 'Unclear' transitivity evaluation ----
 table(judge_quality)
-
-
 
 ## Stacked barplot on transitivity evaluation quality ----
 # Prepare the dataset for ggplot2
@@ -170,14 +145,12 @@ quality <- c(rep("Low", length(dataset[judge_quality == "Low", 3])),
              rep("High", length(dataset[judge_quality == "High", 3])))
 data_quality <- data.frame(year_x, quality) 
 
-
 # Calculate % for each stacked bar
 proportion <- data_quality %>%
   group_by(year_x, quality) %>%
   tally() %>%
   group_by(year_x) %>%
   mutate(pct = (n / sum(n))*100)
-
 
 # Get the precious barplot
 ggplot(proportion, 
