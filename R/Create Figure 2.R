@@ -8,29 +8,18 @@
 #* Date: October 2022
 #*******************************************************************************
 
-
-
-
 ## Load libraries ----
 list.of.packages <- c("ggplot2", "ggpubr")
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
 
-
-
 ## Load data ----
 load("./data/dataset.RData")
-
-
 
 ## General information ----
 year <- dataset[, "Year"]; table(year)
 
-
-
 ## Q: [16] A Table of Characteristics (ToC) is provided in the publication ----
 table_reported <- factor(dataset[, 70], levels = c("Yes", "No"))
-
-
 
 ## Q: If [16] is 'Yes', the total number of characteristics per type 
 q19_data <- dataset[, 73:75]
@@ -39,15 +28,11 @@ q19_data <- dataset[, 73:75]
 q19_sub <- subset(q19_data, table_reported == "Yes")
 year19 <- subset(year, table_reported == "Yes")
 
-
-
 ## If [16] is 'Yes', the characteristics refer to [multiple choice possible]
 q20_data <- dataset[, c(76, 78, 80, 82)]
 
 # Select based on the condition
 q20_sub <- subset(q20_data, table_reported == "Yes")
-
-
 
 ## Box plots ----
 # Dataset for the type of characteristics
