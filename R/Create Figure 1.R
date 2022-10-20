@@ -8,18 +8,12 @@
 #* Date: October 2022
 #*******************************************************************************
 
-
-
 ## Load libraries ----
 list.of.packages <- c("ggplot2", "plyr")
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
 
-
-
 ## Load data ----
 load("./data/dataset.RData")
-
-
 
 ## Bubble plot: Year by healthcase field ----
 counts <- ddply(dataset, .(dataset[, "Year"], dataset[, "Health-related field"]), nrow)
