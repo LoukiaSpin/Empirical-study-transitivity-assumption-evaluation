@@ -8,22 +8,14 @@
 #* Date: October 2022
 #*******************************************************************************
 
-
-
 ## Load library
 library(gmodels)
-
-
 
 ## Load data ----
 load("./data/dataset.RData")
 
-
-
 ## General information ----
 year <- dataset[, "Year"]; table(year)
-
-
 
 ## Q: [1] Whether the review provides a Protocol ----
 protocol <- factor(dataset[, 6], 
@@ -37,8 +29,6 @@ protocol <- factor(dataset[, 6],
 #' and second row % is column-percentage (For the 'year %' in the Table)
 CrossTable(protocol, year, digits = 1, prop.r = TRUE, prop.c = TRUE, prop.t = FALSE, prop.chisq = FALSE, format = "SPSS")
 
-
-
 #* Q: [2] If [1] is 'Registered' or 'Not registered but published', whether the ----
 #* authors defined the transitivity assumption in the Protocol 
 trans_defined <- factor(subset(dataset[, 7], 
@@ -49,8 +39,6 @@ year2 <- subset(year, is.element(protocol, c("Registered", "Not registered but p
 #' NOTE: First row % is row-percentage (for the 'Total %' in the Table), 
 #' and second row % is column-percentage (For the 'year %' in the Table)
 CrossTable(trans_defined, year2, digits = 1, prop.r = TRUE, prop.c = TRUE, prop.t = FALSE, prop.chisq = FALSE, format = "SPSS")
-
-
 
 #* Q: [3] If [1] is 'Registered' or 'Not registered but published', whether the ----
 #* authors mentioned in the Protocol how they plan to evaluate the transitivity 
