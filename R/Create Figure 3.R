@@ -9,8 +9,8 @@
 #*******************************************************************************
 
 ## Install the development version of rnmamod R-package ----
-#install.packages("devtools")
-#devtools::install_github("LoukiaSpin/rnmamod")
+install.packages("devtools")
+devtools::install_github("LoukiaSpin/rnmamod")
 
 ## Load libraries ----
 list.of.packages <- c("ggplot2", "dplyr", "rnmamod")
@@ -92,11 +92,11 @@ both2[q_nma != "No"] <- "NMA not conducted"
 #' Count the 'Yes' across the items that refer to a proper structure of the Table of Characteristics:
 #' "Trial-level without arm-level", "Trial-level with arm-level", "Comparison-level with arm-level",
 #' "Comparison-level without arm-level", and "Comparison-level characteristic summarised across trials".
-proper <- apply(dataset[, c(84:86, 89, 92)], 1, function(x) {length(x[x == "Yes"])})
+proper <- apply(dataset[, c(80:84)], 1, function(x) {length(x[x == "Yes"])})
 
 #' Count the 'Yes' across the items that refer to an improper structure of the Table of Characteristics:
 #' "Intervention level", and "Descriptive statistics per characteristic" .
-improper <- apply(dataset[, 93:94], 1, function(x) {length(x[x == "Yes"])})
+improper <- apply(dataset[, 85:86], 1, function(x) {length(x[x == "Yes"])})
 
 #' Characterise the review as having "Proper", "Improper", or "No table",
 proper_toc <- ifelse(proper == 1 & improper == 0, "Yes", 

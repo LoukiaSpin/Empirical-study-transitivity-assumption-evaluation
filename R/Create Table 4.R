@@ -47,7 +47,7 @@ CrossTable(table_found_in, year17, digits = 1, prop.r = TRUE, prop.c = TRUE, pro
 
 
 # Q: [21] If [16] is 'Yes', the Table presents the information at [ONE choice possible] ----
-q21_data0 <- dataset[, c(84:86, 89, 92:94)]
+q21_data0 <- dataset[, c(80:86)]
 q21_data0[, 1:4] <- ifelse(q21_data0[, 1:4] == "Yes", 1, 0)
 
 #' Merge 'Trial-level with arms' with 'Trial-level w/o arms' into 'Trial-level', and 
@@ -85,7 +85,7 @@ round(t(apply(year_n21, 1, function(x) x/apply(year_n21, 2, sum))) * 100, 1)  # 
 #* Q: [22] If [16] is 'Yes' and [21] is not 'Table with the descriptive statistics ----
 #* for each characteristic', there is at least one trial (or comparison) with 
 #* at least one missing characteristic
-q22 <- factor(dataset[, 95], levels = c("Not applicable", "Yes", "No"))
+q22 <- factor(dataset[, 87], levels = c("Not applicable", "Yes", "No"))
 
 missing_chars <- subset(q22, q22 != "Not applicable")
 year22 <- subset(year, q22 != "Not applicable")

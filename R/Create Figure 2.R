@@ -29,7 +29,7 @@ q19_sub <- subset(q19_data, table_reported == "Yes")
 year19 <- subset(year, table_reported == "Yes")
 
 ## If [16] is 'Yes', the characteristics refer to [multiple choice possible]
-q20_data <- dataset[, c(76, 78, 80, 82)]
+q20_data <- dataset[, c(76:79)]
 
 # Select based on the condition
 q20_sub <- subset(q20_data, table_reported == "Yes")
@@ -48,9 +48,9 @@ colnames(data19) <- c("value", "levels", "year")
 g19 <- ggplot(data19, 
               aes(x = year, 
                   y = value, 
-                  color = levels,
-                  fill = levels)) + 
-  geom_boxplot(aes(fill = after_scale(colorspace::lighten(fill, .4))),
+                  color = levels)) + 
+  geom_boxplot(aes(fill = levels, 
+                   fill = after_scale(colorspace::lighten(fill, .4))),
                size = 1, 
                outlier.shape = NA) +
   geom_jitter(width = .1, 
@@ -84,11 +84,11 @@ cbp1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
 g20 <- ggplot(data20, 
               aes(x = year, 
                   y = value, 
-                  color = levels,
-                  fill = levels)) +
+                  color = levels)) +
   scale_fill_manual(values = cbp1) +
   scale_color_manual(values = cbp1) + 
-  geom_boxplot(aes(fill = after_scale(colorspace::lighten(fill, .4))),
+  geom_boxplot(aes(fill = levels, 
+                   fill = after_scale(colorspace::lighten(fill, .4))),
                size = 1, 
                outlier.shape = NA) +
   geom_jitter(width = .1, 
