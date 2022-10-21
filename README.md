@@ -1,4 +1,4 @@
-# Low awareness of the transitivity assumption in complex networks of interventions: empirical evidence from 356 reviews
+# Low awareness of the transitivity assumption in complex networks of interventions: empirical evidence from 356 network meta-analyses
 
 
 ## Description of the repository
