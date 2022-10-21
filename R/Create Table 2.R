@@ -89,50 +89,50 @@ CrossTable(indicated_trans, year8, digits = 1, prop.r = TRUE, prop.c = TRUE, pro
 
 
 
-#* Q: [9] Among the reviews with '[7] is Yes' or '[8] is Yes', which method(s) ----
+#* Q: [9] The authors planned to evaluate transitivity ([6] is 'Yes'), ----
+#* but they did not perform any
+q9 <- factor(dataset[, 44], 
+             levels = c("Not applicable",
+                        "They performed the evaluation exactly as planned",
+                        "They performed some of the planned methods (in [9]) due to limited data",
+                        "They could not perform the evaluation due to limited data",
+                        "They did not report in the Results or Discussion section any transitivity evaluation"))  
+
+performed_nma <- subset(q9, methods_trans == "Yes")
+year9 <- subset(year, methods_trans == "Yes")
+
+#' NOTE: First row % is row-percentage (for the 'Total %' in the Table), 
+#' and second row % is column-percentage (For the 'year %' in the Table)
+CrossTable(performed_nma, year9, digits = 1, prop.r = TRUE, prop.c = TRUE, prop.t = FALSE, prop.chisq = FALSE, format = "SPSS")
+
+
+
+#* Q: [10] Among the reviews with '[7] is Yes' or '[8] is Yes', which method(s) ----
 #* have been used [multiple choice possible]
-q9_data <- dataset[, c(30, 32, 34, 38, 40, 41, 42, 43)]
+q10_data <- dataset[, c(30, 32, 34, 38, 40, 41, 42, 43)]
 
 # Select based on the condition
-q9_sub <- subset(q9_data, dataset[, 29] == "No")
-year9 <- subset(year, dataset[, 29] == "No")
-for (i in 1:dim(q9_sub)[2]) {
-  q9_sub[, i] <- factor(q9_sub[, i], levels = c("Not applicable", "Yes", "No"))
+q10_sub <- subset(q10_data, dataset[, 29] == "No")
+year10 <- subset(year, dataset[, 29] == "No")
+for (i in 1:dim(q10_sub)[2]) {
+  q10_sub[, i] <- factor(q10_sub[, i], levels = c("Not applicable", "Yes", "No"))
 }
-names(q9_sub) <- c("Salanti 1", "Salanti 2&3", "Salanti 4", "Salanti 5",
+names(q10_sub) <- c("Salanti 1", "Salanti 2&3", "Salanti 4", "Salanti 5",
                    "Sensitivity", "Subgroup", "Meta-regression", "Consistency")
 
 # Obtain 'Total' and '% Total' per multiple-choice
-total0 <- apply(q9_sub, 2, function(x) sum(x == "Yes"))
+total0 <- apply(q10_sub, 2, function(x) sum(x == "Yes"))
 total0[6] <- 99 # 'apply' treated 99 (for Subgroup) as NA, so I had to include it manually.
 total <- data.frame(total0, round((total0 / sum(total0)) * 100, 1))
 colnames(total) <- c("counts", "percent"); total
 
 # Obtain count and % 'Per year' for each multiple-choice
-q9_year <- list()
-for (i in 1:dim(q9_sub)[2]) {
-  q9_year[[i]] <- table(q9_sub[, i], year9)  # Per year, n
+q10_year <- list()
+for (i in 1:dim(q10_sub)[2]) {
+  q10_year[[i]] <- table(q10_sub[, i], year10)  # Per year, n
 }
-year_n0 <- do.call(rbind, q9_year)
+year_n0 <- do.call(rbind, q10_year)
 year_n <- subset(year_n0, rownames(year_n0) == "Yes")
-rownames(year_n) <- names(q9_sub); year_n                                # counts per year
+rownames(year_n) <- names(q10_sub); year_n                                # counts per year
 round(t(apply(year_n, 1, function(x) x/apply(year_n, 2, sum))) * 100, 1) # % per year
-
-
-
-#* Q: [10] The authors planned to evaluate transitivity ([6] is 'Yes'), ----
-#* but they did not perform any
-q10 <- factor(dataset[, 44], 
-              levels = c("Not applicable",
-                         "They performed the evaluation exactly as planned",
-                         "They performed some of the planned methods (in [9]) due to limited data",
-                         "They could not perform the evaluation due to limited data",
-                         "They did not report in the Results or Discussion section any transitivity evaluation"))  
-
-performed_nma <- subset(q10, methods_trans == "Yes")
-year10 <- subset(year, methods_trans == "Yes")
-
-#' NOTE: First row % is row-percentage (for the 'Total %' in the Table), 
-#' and second row % is column-percentage (For the 'year %' in the Table)
-CrossTable(performed_nma, year10, digits = 1, prop.r = TRUE, prop.c = TRUE, prop.t = FALSE, prop.chisq = FALSE, format = "SPSS")
 
