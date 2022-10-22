@@ -16,7 +16,7 @@ devtools::install_github("davidsjoberg/ggsankey")
 devtools::install_github("LoukiaSpin/rnmamod")
 
 ## Load libraries ----
-list.of.packages <- c("dplyr", "ggsankey", "stringr")
+list.of.packages <- c("dplyr", "ggsankey", "rnmamod", "stringr")
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
 
 ## Load data ----
