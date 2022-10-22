@@ -8,22 +8,14 @@
 #* Date: October 2022
 #*******************************************************************************
 
-
-
 ## Load library
 library(gmodels)
-
-
 
 ## Load data ----
 load("./data/dataset.RData")
 
-
-
 ## General information ----
 year <- dataset[, "Year"]; table(year)
-
-
 
 #* Q: [11] Among the reviews with '[7] is Yes' or '[8] is Yes', what did ----
 #* the authors onclude or imply regarding the plausibility of transitivity 
@@ -37,11 +29,9 @@ q11 <- factor(dataset[, 45],
 plausibility <- subset(q11, dataset[, 29] == "No")
 year11 <- subset(year, dataset[, 29] == "No")
 
-#' NOTE: First row % is row-percentage (for the 'Total %' in the Table), 
-#' and second row % is column-percentage (For the 'year %' in the Table)
+#' NOTE: See column 'Row Total for absolute (n) and relative Total (%) in the Table, 
+#' and second row % is column-percentage for the 'year %' in the Table
 CrossTable(plausibility, year11, digits = 1, prop.r = TRUE, prop.c = TRUE, prop.t = FALSE, prop.chisq = FALSE, format = "SPSS")
-
-
 
 #* Q: [12] If [11] is 'Transitivity may be questionable' or 'Difficult to judge ----
 #* due to limited data', did the authors decide to abstain from NMA 
@@ -53,11 +43,9 @@ abstain_from_nma <- subset(q12, is.element(q11, c("Transitivity may be questiona
 year12 <- subset(year, is.element(q11, c("Transitivity may be questionable", 
                                          "Difficult to judge due to limited data")))
 
-#' NOTE: First row % is row-percentage (for the 'Total %' in the Table), 
-#' and second row % is column-percentage (For the 'year %' in the Table)
+#' NOTE: See column 'Row Total for absolute (n) and relative Total (%) in the Table, 
+#' and second row % is column-percentage for the 'year %' in the Table
 CrossTable(abstain_from_nma, year12, digits = 1, prop.r = TRUE, prop.c = TRUE, prop.t = FALSE, prop.chisq = FALSE, format = "SPSS")
-
-
 
 #* Q: [13] If [11] is not 'Nothing stated' or 'Not applicable', What method(s) ----
 #* did the authors consider to conclude or imply about the plausibility of 
@@ -88,8 +76,6 @@ year_n13 <- subset(year_n_1, rownames(year_n_1) == "Yes")
 rownames(year_n13) <- names(q13_sub); year_n13                                # counts per year
 round(t(apply(year_n13, 1, function(x) x/apply(year_n13, 2, sum))) * 100, 1)  # % per year
 
-
-
 #* Q: [14] If [11] is not 'Nothing stated', this information was found in ----
 #* [multiple choice possible]
 q14_data <- dataset[, 58:61]
@@ -116,8 +102,6 @@ year_n_2 <- do.call(rbind, q14_year)
 year_n14 <- subset(year_n_2, rownames(year_n_2) == "Yes")
 rownames(year_n14) <- names(q14_sub); year_n14                                # counts per year
 round(t(apply(year_n14, 1, function(x) x/apply(year_n14, 2, sum))) * 100, 1)  # % per year
-
-
 
 #* Q: [15] If [11] is not 'Nothing stated', implications were discussed or ----
 #* implied in the context of which NMA component(s) [multiple choice possible]

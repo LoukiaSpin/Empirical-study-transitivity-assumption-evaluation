@@ -8,31 +8,21 @@
 #* Date: October 2022
 #*******************************************************************************
 
-
-
 ## Load library
 library(gmodels)
-
-
 
 ## Load data ----
 load("./data/dataset.RData")
 
-
-
 ## General information ----
 year <- dataset[, "Year"]; table(year)
-
-
 
 # Q: [16] A Table of Characteristics (ToC) is provided in the publication ----
 table_reported <- factor(dataset[, 70], levels = c("Yes", "No"))
 
-#' NOTE: First row % is row-percentage (for the 'Total %' in the Table), 
-#' and second row % is column-percentage (For the 'year %' in the Table)
+#' NOTE: See column 'Row Total for absolute (n) and relative Total (%) in the Table, 
+#' and second row % is column-percentage for the 'year %' in the Table
 CrossTable(table_reported, year, digits = 1, prop.r = TRUE, prop.c = TRUE, prop.t = FALSE, prop.chisq = FALSE, format = "SPSS")
-
-
 
 # Q: [17] If [16] is 'Yes', this Table can be found in ----
 q17 <- factor(dataset[, 71], levels = c("Not applicable", "Main article", "Supplementary", "Both"))
@@ -40,11 +30,9 @@ q17 <- factor(dataset[, 71], levels = c("Not applicable", "Main article", "Suppl
 table_found_in <- subset(q17, table_reported == "Yes")
 year17 <- subset(year, table_reported == "Yes")
 
-#' NOTE: First row % is row-percentage (for the 'Total %' in the Table), 
-#' and second row % is column-percentage (For the 'year %' in the Table)
+#' NOTE: See column 'Row Total for absolute (n) and relative Total (%) in the Table, 
+#' and second row % is column-percentage for the 'year %' in the Table
 CrossTable(table_found_in, year17, digits = 1, prop.r = TRUE, prop.c = TRUE, prop.t = FALSE, prop.chisq = FALSE, format = "SPSS")
-
-
 
 # Q: [21] If [16] is 'Yes', the Table presents the information at [ONE choice possible] ----
 q21_data0 <- dataset[, c(80:86)]
@@ -80,8 +68,6 @@ year_n21 <- subset(year_n0, rownames(year_n0) == "Yes")
 rownames(year_n21) <- names(q21_sub); year_n21                                # counts per year
 round(t(apply(year_n21, 1, function(x) x/apply(year_n21, 2, sum))) * 100, 1)  # % per year
 
-
-
 #* Q: [22] If [16] is 'Yes' and [21] is not 'Table with the descriptive statistics ----
 #* for each characteristic', there is at least one trial (or comparison) with 
 #* at least one missing characteristic
@@ -90,6 +76,6 @@ q22 <- factor(dataset[, 87], levels = c("Not applicable", "Yes", "No"))
 missing_chars <- subset(q22, q22 != "Not applicable")
 year22 <- subset(year, q22 != "Not applicable")
 
-#' NOTE: First row % is row-percentage (for the 'Total %' in the Table), 
-#' and second row % is column-percentage (For the 'year %' in the Table)
+#' NOTE: See column 'Row Total for absolute (n) and relative Total (%) in the Table, 
+#' and second row % is column-percentage for the 'year %' in the Table
 CrossTable(missing_chars, year22, digits = 1, prop.r = TRUE, prop.c = TRUE, prop.t = FALSE, prop.chisq = FALSE, format = "SPSS")

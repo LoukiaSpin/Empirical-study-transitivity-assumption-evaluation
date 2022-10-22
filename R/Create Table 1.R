@@ -25,8 +25,8 @@ protocol <- factor(dataset[, 6],
                               "Explicitly mentioned that there is no protocol", 
                               "Protocol not mentioned"))
 
-#' NOTE: First row % is row-percentage (for the 'Total %' in the Table), 
-#' and second row % is column-percentage (For the 'year %' in the Table)
+#' NOTE: See column 'Row Total for absolute (n) and relative Total (%) in the Table, 
+#' and second row % is column-percentage for the 'year %' in the Table
 CrossTable(protocol, year, digits = 1, prop.r = TRUE, prop.c = TRUE, prop.t = FALSE, prop.chisq = FALSE, format = "SPSS")
 
 #* Q: [2] If [1] is 'Registered' or 'Not registered but published', whether the ----
@@ -36,8 +36,8 @@ trans_defined <- factor(subset(dataset[, 7],
                         levels = c("Not applicable", "Yes", "No"))
 year2 <- subset(year, is.element(protocol, c("Registered", "Not registered but published")))
 
-#' NOTE: First row % is row-percentage (for the 'Total %' in the Table), 
-#' and second row % is column-percentage (For the 'year %' in the Table)
+#' NOTE: See column 'Row Total for absolute (n) and relative Total (%) in the Table, 
+#' and second row % is column-percentage for the 'year %' in the Table
 CrossTable(trans_defined, year2, digits = 1, prop.r = TRUE, prop.c = TRUE, prop.t = FALSE, prop.chisq = FALSE, format = "SPSS")
 
 #* Q: [3] If [1] is 'Registered' or 'Not registered but published', whether the ----
