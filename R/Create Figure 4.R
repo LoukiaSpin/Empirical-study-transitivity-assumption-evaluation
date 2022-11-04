@@ -12,9 +12,6 @@
 install.packages("devtools")
 devtools::install_github("davidsjoberg/ggsankey")
 
-## Install the development version of rnmamod R-package ----
-devtools::install_github("LoukiaSpin/rnmamod")
-
 ## Load libraries ----
 list.of.packages <- c("dplyr", "ggsankey", "rnmamod", "stringr")
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)

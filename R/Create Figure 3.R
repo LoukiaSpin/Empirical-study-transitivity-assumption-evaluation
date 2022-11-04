@@ -8,10 +8,6 @@
 #* Date: October 2022
 #*******************************************************************************
 
-## Install the development version of rnmamod R-package ----
-install.packages("devtools")
-devtools::install_github("LoukiaSpin/rnmamod")
-
 ## Load libraries ----
 list.of.packages <- c("ggplot2", "dplyr", "rnmamod")
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
