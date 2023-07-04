@@ -1,12 +1,11 @@
 #*******************************************************************************
 #*
-#*
-#*                         Create Figures - Main text 
-#*                          (Using 'dataset.RData')                                                                                          
-#*
-#*
+#*            
+#*                              Create Main Figures                                                                                                                   
+#*                                                                 
+#* Authors: Loukia M. Spineli & Katerina Papadimitropoulou
+#* Date: July 2023
 #*******************************************************************************
-
 
 
 ## Load libraries ----
@@ -14,10 +13,8 @@ list.of.packages <- c("readxl", "reshape2", "ggplot2", "plyr", "dplyr", "ggpubr"
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
 
 
-
 ## Load data ----
-load("./31_Analysis - Descriptives/dataset.RData")
-
+load("./data/Analysis dataset.RData")
 
 
 ## General information ----
@@ -25,11 +22,9 @@ dataset$Year <- factor(ifelse(dataset$Year <= 2015, "Before PRISMA-NMA", "After 
                        levels = c("Before PRISMA-NMA", "After PRISMA-NMA"))
 
 
-
 ## Total reviews per PRISMA-NMA status
 before <- length(dataset$Year[dataset$Year == "Before PRISMA-NMA"])
 after <- length(dataset$Year[dataset$Year == "After PRISMA-NMA"])
-
 
 
 ## Protocol level ----
@@ -89,17 +84,10 @@ data_protocol$method <- revalue(data_protocol$method,
                                   "G2_n_prop" = "G",
                                   "H_n_prop" = "H"))
 
-# Save 'Evaluation methods' at Protocol 
-tiff("./31_Analysis - Descriptives/Figure 1.tiff", 
-     height = 30, 
-     width = 50, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
+# Get Figure 1
 ggplot(data_protocol,
        aes(x = method,
            y = prop,
-           #colour = as.factor(indirect),
            fill = as.factor(trans_only))) +
   geom_bar(stat = "identity", 
            position = "stack",
@@ -110,16 +98,9 @@ ggplot(data_protocol,
             size = 5,
             colour = "black",
             position = "stack") +
-  #scale_colour_manual(breaks = c("Direct methods", "Indirect methods"),
-  #                  values = c("white", "black")) +
   scale_fill_manual(breaks = c("0", "1"),
                     values = c("#66CCFF", "#0099FF"), 
                     labels = c("For heterogeneity assessment", "For transitivity assessment")) +
-  #scale_x_discrete(labels=c("E" = expression(bold(E)), 
-  #                          "F" = expression(bold(F)),
-  #                          "G" = expression(bold(G)), 
-  #                          "H" = expression(bold(H)), parse = TRUE)) +
-  #facet_grid(.~ timeframe + indirect, scales = "free_x") +
   facet_nested( ~ timeframe + indirect, scales = "free_x") + 
   labs(x = "",
        y = "Percentage (%)",
@@ -134,7 +115,6 @@ ggplot(data_protocol,
         legend.position = "bottom",
         legend.text = element_text(size = 14),
         strip.text = element_text(size = 14, face = "bold"))
-dev.off()
 
 
 
@@ -181,17 +161,10 @@ data_review$method <- revalue(data_review$method,
                                 "G2_n_prop" = "G",
                                 "H_n_prop" = "H"))
 
-# Save 'Evaluation methods' at Review level
-tiff("./31_Analysis - Descriptives/Figure 2.tiff", 
-     height = 30, 
-     width = 50, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
+# Get Figure 2
 ggplot(data_review,
        aes(x = method,
            y = prop,
-           #colour = as.factor(indirect),
            fill = as.factor(trans_only))) +
   geom_bar(stat = "identity", 
            position = "stack",
@@ -202,16 +175,9 @@ ggplot(data_review,
             size = 5,
             colour = "black",
             position = "stack") +
-  #scale_colour_manual(breaks = c("Direct methods", "Indirect methods"),
-  #                    values = c("white", "black")) +
   scale_fill_manual(breaks = c("0", "1"),
                     values = c("#66CCFF", "#0099FF"), 
                     labels = c("For heterogeneity assessment", "For transitivity assessment")) +
-  #scale_x_discrete(labels=c("E" = expression(bold(E)), 
-  #                          "F" = expression(bold(F)),
-  #                          "G" = expression(bold(G)), 
-  #                          "H" = expression(bold(H)), parse = TRUE)) +
-  #facet_grid(~ timeframe) +
   facet_nested( ~ timeframe + indirect, scales = "free_x") + 
   ggtitle("Systematic review level") +
   labs(x = "",
@@ -226,23 +192,6 @@ ggplot(data_review,
         legend.position = "bottom",
         legend.text = element_text(size = 14),
         strip.text = element_text(size = 14, face = "bold"))
-dev.off()
-
-# Save 'Evaluation methods' at Protocol and Review level
-#tiff("./31_Analysis - Descriptives/Figure 1.tiff", 
-#     height = 30, 
-#     width = 50, 
-#     units = "cm", 
-#     compression = "lzw", 
-#     res = 300)
-#ggarrange(fig1, 
-#          fig2, 
-#          ncol = 2, 
-#          labels = c("(a)", "(b)"),
-#          common.legend = TRUE, 
-#          legend = "bottom")
-#dev.off()
-
 
 
 ## Review level (Acknowledging) ----
@@ -255,8 +204,8 @@ q9_bin <- factor(ifelse(is.element(dataset[, 53], c("Not applicable", "Nothing s
 q_cond <- ifelse(dataset[, c(35, 37, 43, 42, 46, 48, 50, 51)] == "Yes", 1, 0)
 
 #' Then, separate between reviews that employed at least one method for transitivity ("Trans+")
-#' from those that used only indirect method(s) for heterogeneity sources ("Hetero").
-q_cond_new <- ifelse(rowSums(q_cond) > 0, "Trans+", "Hetero") 
+#' from those that used only indirect method(s) for heterogeneity sources or made no evaluation ("Other").
+q_cond_new <- ifelse(rowSums(q_cond) > 0, "Trans+", "Other") 
 q_cond_fin <- ifelse(dataset[, 34] == "Yes", "Yes", q_cond_new)
 
 # Consider the actual levels after restricting to q9_bin != "No" and q_cond_fin == "Trans+"
@@ -266,10 +215,10 @@ q9 <- factor(subset(dataset[, 53], q9_bin != "No" & q_cond_fin == "Trans+"),
                         "Difficult to judge due to limited data"))
 
 
-
 #* Among the reviews with a conclusion about transitivity, which method did the 
 #* authors use to justify their conclusion
-q3_acknow <- ifelse(subset(dataset[, c(56:58, 60, 59, 61:64)], q9_bin != "No" & q_cond_fin == "Trans+") == "Yes", 1, 0) 
+q3_acknow <- ifelse(subset(dataset[, c(56:58, 60, 59, 61:64)], 
+                           q9_bin != "No" & q_cond_fin == "Trans+") == "Yes", 1, 0) 
 colnames(q3_acknow) <- c("A", # Limited data
                          "B", # Intervention similarity
                          "C", # Missing-at-random interventions
@@ -281,7 +230,6 @@ colnames(q3_acknow) <- c("A", # Limited data
                          "I") # Consistency evaluation
 year10 <- subset(dataset$Year, q9_bin == "Yes" & q_cond_fin == "Trans+")  
 aa1 <- table(year10); aa2 <- round(table(year10)/c(before, after) * 100, 0)
-
 
 # Percentage of 'Yes' per method, timeframe and conclusion
 table_acknow <- data.frame(year10, q9, q3_acknow) %>% 
@@ -297,7 +245,7 @@ table_acknow_total <- data.frame(year10, q3_acknow) %>%
   rowwise() %>%
   mutate(across(A_n:I_n, list(prop = ~.x / sum(c(A_n, B_n, C_n, D_n, E_n, F_n, G_n, H_n, I_n)))))
 
-#' Prepare the dataset for ggplot2 
+# Prepare the dataset for ggplot2 
 # Considering the conclusions
 data_acknow <- melt(table_acknow[, -c(3:11)])
 # Without the conclusions
@@ -335,17 +283,10 @@ data_acknow_both$method <- revalue(data_acknow_both$method,
                                      "I_n_prop" = "I"))
 data_acknow_both$radius <- sqrt(data_acknow_both$prop/pi)
 
-# Save 'Acknowledging methods' at Review level
-tiff("./31_Analysis - Descriptives/Figure 3.tiff", 
-     height = 30, 
-     width = 50, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
+# Get Figure 3
 ggplot(data_acknow_both, 
        aes(x = method, 
            y = conclusion,
-           #colour = indirect,
            fill = limited)) +
   geom_point(aes(size = radius*7.4), #7.8, 10
              shape = 21, 
@@ -355,17 +296,9 @@ ggplot(data_acknow_both,
             size = 4.5, 
             color="black",
             fontface = "bold") +
-  #scale_colour_manual(breaks = c("0", "1"),
-  #                    values = c("white", "black")) +
   scale_fill_manual(name = "Conclusion was based on",
                     breaks = c("Limited data", "(In)direct methods"),
                     values = c("#CCCCCC", "#0099FF")) +
-  #scale_x_discrete(labels=c("F" = expression(bold(F)), 
-  #                          "G" = expression(bold(G)),
-  #                          "H" = expression(bold(H)), 
-  #                          "I" = expression(bold(I)), parse = TRUE)) +
-  #scale_y_discrete(labels = function(x) str_wrap(x, width = 18)) + 
-  #facet_grid(~ timeframe) +
   facet_nested( ~ timeframe + indirect, scales = "free_x") + 
   labs(x = "",
        y ="") + 
@@ -380,15 +313,13 @@ ggplot(data_acknow_both,
         legend.position = "bottom",
         legend.text = element_text(size = 14),
         strip.text = element_text(size = 14, face = "bold"))
-dev.off()
-
 
 
 ## Reporting the Table of Characteristics (Characteristic types) ----
-# [12] A Table of Characteristics (ToC) is provided in the publication
+# A Table of Characteristics (ToC) is provided in the publication
 q12 <- factor(dataset[, 78], levels = c("Yes", "No"))
 
-# CD-CF: Type of characteristics (Quantitative, Qualitative, Textual)
+# Type of characteristics (Quantitative, Qualitative, Textual)
 q19 <- subset(dataset[, 81:83], q12 == "Yes" & dataset[, 80] != "No access")
 year19 <- subset(dataset$Year, q12 == "Yes" & dataset[, 80] != "No access"); table(year19) / c(359, 360)
 
@@ -446,9 +377,8 @@ fig19 <- ggplot(data19_fin,
         legend.title = element_blank())
 
 
-
 ## Reporting the Table of Characteristics (Characteristic regarding PICO) ----
-# CG-CN: PICO-related characteristics (Participants, Intervention, Outcome, Design)
+# PICO-related characteristics (Participants, Intervention, Outcome, Design)
 q20 <- subset(dataset[, 84:87], q12 == "Yes" & dataset[, 80] != "No access")
 
 # Dataframe with columns 'Year', 'Characteristic type', and 'Frequency'
@@ -494,19 +424,11 @@ fig20 <- ggplot(data20_fin,
         legend.text = element_text(size = 15), 
         legend.title = element_blank())
 
-# Save 'Characteristic types and PICOs'
-tiff("./31_Analysis - Descriptives/Figure 4.tiff", 
-     height = 30, 
-     width = 50, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
-ggarrange(fig19, fig20, labels = c("(a)", "(b))"))
-dev.off()
+# Get Figure 4
+ggarrange(fig19, fig20, labels = c("(a)", "(b)"))
 
 
-
-## Finding reporting gaps 
+## Finding reporting gaps (Results have been gathered from Table 2 and Main Figures)
 # At protocol level
 data_gap_prot <- 
   data.frame(item = rep(c("Protocol available", "Transitivity defined", "Direct methods", "Indirect methods"), each = 2),
@@ -540,13 +462,7 @@ data_gap$level <- ifelse(data_gap$value < 25, "very low",
                                 ifelse(data_gap$value >= 50 & data_gap$value < 75, "moderate", "high")))
 data_gap$order <- factor(rep(1:10, each = 2))
 
-# Save the lollipop
-tiff("./31_Analysis - Descriptives/Figure 5.tiff", 
-     height = 30, 
-     width = 50, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
+# Get Figure 5
 ggplot(data_gap, 
        aes(x = item, 
            y = value,
@@ -561,9 +477,6 @@ ggplot(data_gap,
              size = 8, 
              shape = 21, 
              stroke = 4) + 
-  #geom_bar(stat = "identity", 
-  #         position = position_dodge(),
-  #         linewidth = 0.6) +
   geom_text(aes(label = paste0(value, "%")), 
             position = position_dodge(0.6),
             vjust = -1.7,
@@ -593,5 +506,3 @@ ggplot(data_gap,
         legend.position = "bottom",
         legend.text = element_text(size = 14),
         strip.text = element_text(size = 14, face = "bold"))
-dev.off()
-
