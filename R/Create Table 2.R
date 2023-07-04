@@ -8,11 +8,6 @@
 #*******************************************************************************
 
 
-## Load libraries ----
-list.of.packages <- c("readxl", "plyr")
-lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
-
-
 ## Load data ----
 load("./data/Analysis dataset.RData")
 

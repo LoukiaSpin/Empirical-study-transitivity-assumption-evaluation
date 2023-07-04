@@ -9,7 +9,7 @@
 
 
 ## Load libraries ----
-list.of.packages <- c("readxl", "reshape2", "ggplot2", "plyr", "dplyr", "ggpubr", "stringr")
+list.of.packages <- c("reshape2", "ggplot2", "plyr", "dplyr", "ggpubr", "stringr")
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
 
 
