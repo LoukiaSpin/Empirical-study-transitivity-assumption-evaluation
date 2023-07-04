@@ -433,7 +433,7 @@ ggarrange(fig19, fig20, labels = c("(a)", "(b)"))
 data_gap_prot <- 
   data.frame(item = rep(c("Protocol available", "Transitivity defined", "Direct methods", "Indirect methods"), each = 2),
              timeframe = rep(c("Before PRISMA-NMA", "After PRISMA-NMA"), 4),
-             value = c(16, 43, 16, 14, 10, 10, 16, 33)) # Numbers in %
+             value = c(15.8, 42.5, 15.8, 14.4, 10.1, 9.7, 15.7, 33.4)) # Numbers in %
 
 # Sort the categories to the desired order
 data_gap_prot$item <- factor(data_gap_prot$item,
@@ -445,7 +445,7 @@ data_gap_prot$timeframe <- factor(data_gap_prot$timeframe,
 data_gap_rev <- 
   data.frame(item = rep(c("Transitivity defined", "Planned & reported", "Direct methods", "Indirect methods", "Transitivity conclusion", "Discussed parameter"), each = 2),
              timeframe = rep(c("Before PRISMA-NMA", "After PRISMA-NMA"), 6),
-             value = c(36, 24, 53, 70, 12, 11, 40, 54, 35, 38, 82, 69)) # Numbers in %
+             value = c(36.0, 24.4, 52.5, 70.0, 11.8, 11.0, 40.2, 54.1, 35.5, 38.1, 82.0, 68.6)) # Numbers in %
 
 # Sort the categories to the desired order
 data_gap_rev$item <- factor(data_gap_rev$item,
