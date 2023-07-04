@@ -1,12 +1,11 @@
 #*******************************************************************************
 #*
-#*
-#*                        Create Supplementary Figures   
-#*                          (Using 'dataset.RData')                                                                                                                                              
-#*
-#*
+#*            
+#*                         Create Supplementary Figures                                                                                                                                                                                                                      
+#*                                                                 
+#* Author: Loukia M. Spineli 
+#* Date: July 2023
 #*******************************************************************************
-
 
 
 ## Load libraries ----
@@ -14,10 +13,8 @@ list.of.packages <- c("readxl", "reshape2", "ggplot2", "plyr", "dplyr", "ggpubr"
 lapply(list.of.packages, require, character.only = TRUE); rm(list.of.packages)
 
 
-
 ## Load data ----
-load("./31_Analysis - Descriptives/dataset.RData")
-
+load("./data/Analysis dataset.RData")
 
 
 ## General information ----
@@ -25,11 +22,9 @@ dataset$Year <- factor(ifelse(dataset$Year <= 2015, "Before PRISMA-NMA", "After 
                        levels = c("Before PRISMA-NMA", "After PRISMA-NMA"))
 
 
-
 ## Total reviews per PRISMA-NMA status
 before <- length(dataset$Year[dataset$Year == "Before PRISMA-NMA"])
 after <- length(dataset$Year[dataset$Year == "After PRISMA-NMA"])
-
 
 
 ## Bubble plot: Year by healthcare field ----
@@ -54,20 +49,13 @@ data_bubble$Year <- factor(data_bubble$Year,
 # Add radius as new variable to 'data_bubble'
 data_bubble$radius <- sqrt(data_bubble$Freq/pi)
 
-# Create bubble plot
-tiff("./31_Analysis - Descriptives/Figure S1.tiff", 
-     height = 30, 
-     width = 50, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
+# Get Figure S1
 ggplot(data_bubble, 
        aes(x = Year, 
-           y = Health)) + #,
-  #fill = Year)) +
-  geom_point(aes(size = radius*4.7), #3.2
+           y = Health)) + 
+  geom_point(aes(size = radius*4.7), 
              shape = 21, 
-             fill = "white", # "#FFCCCC",
+             fill = "white", 
              color = "black",
              stroke = 1.2,
              alpha = 0.5) +
@@ -84,15 +72,13 @@ ggplot(data_bubble,
         axis.text = element_text(size = 14),
         axis.title = element_text(size = 14, face = "bold"),
         legend.position = "none")
-dev.off()
-
 
 
 ## Review level (definition) ----
-# [5] The authors defined transitivity assumption in the Review
+# The authors defined transitivity assumption in the Review
 q5 <- factor(dataset[, 28], levels = c("Yes", "No"))
 
-#* AD: Among the reviews that defined transitivity, where in the Review did the 
+#* Among the reviews that defined transitivity, where in the Review did the 
 #* authors report the transitivity definition
 q5_defin <- factor(subset(dataset[, 29], q5 == "Yes"), 
                    levels = c("Abstract", "Introduction", "Methods", "Results", "Discussion", "Supplementary"))
@@ -119,7 +105,7 @@ data_defin$method <- revalue(data_defin$method,
                                "Discussion" = "D",
                                "Supplementary" = "E"))
 
-# Create barplot
+# Get Figure S2 (a)
 fig1 <- ggplot(data_defin,
                aes(x = method,
                    y = prop)) +
@@ -132,7 +118,6 @@ fig1 <- ggplot(data_defin,
             size = 5,
             colour = "black",
             position = "stack") +
-  #scale_x_discrete(labels = function(x) str_wrap(x, width = 10)) + 
   facet_grid(~ timeframe) +
   labs(x = "",
        y = "Percentage (%)",
@@ -161,7 +146,7 @@ q_cond <- ifelse(dataset[, c(35, 37, 43, 42, 46, 48, 50, 51)] == "Yes", 1, 0)
 q_cond_new <- ifelse(rowSums(q_cond) > 0, "Trans+", "Hetero") 
 q_cond_fin <- ifelse(dataset[, 34] == "Yes", "Yes", q_cond_new)
 
-# BO-BR: Among the reviews with a conclusion about transitivity, this information was found in the 
+# Among the reviews with a conclusion about transitivity, this information was found in the 
 q11_where <- ifelse(subset(dataset[, 66:69], q9_bin != "No" & q_cond_fin == "Trans+") == "Yes", 1, 0)
 colnames(q11_where) <- c("Abstract", "Results", "Discussion", "Conclusions") 
 year11_where <- subset(dataset$Year, q9_bin != "No" & q_cond_fin == "Trans+"); 
@@ -190,7 +175,7 @@ data_where$method <- revalue(data_where$method,
                                "Discussion_n_prop" = "Discussion",
                                "Conclusions_n_prop" = "Conclusions"))
 
-# Create the barplot
+# Get Figure S2 (b)
 fig2 <- ggplot(data_where,
                aes(x = method,
                    y = prop)) +
@@ -216,25 +201,17 @@ fig2 <- ggplot(data_where,
         axis.text = element_text(size = 14),
         strip.text = element_text(size = 14, face = "bold"))
 
-# Save 'Definition and acknowledgment places' at Review level
-tiff("./31_Analysis - Descriptives/Figure S2.tiff", 
-     height = 30, 
-     width = 50, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
+# Bring together into Figure S2
 ggarrange(fig1, 
           fig2, 
           ncol = 2, 
           labels = c("(a)", "(b)"),
           common.legend = TRUE, 
           legend = "bottom")
-dev.off()
-
 
 
 ## Review level (Performed as planned?) ----
-#* [6] Among the reviews that explicitly planned transitivity evaluation, did they 
+#* Among the reviews that explicitly planned transitivity evaluation, did they 
 #* authors perform the evaluation as planned?
 # Correcting dataset[, 32] for explicit evaluation of trans!
 q6 <- revalue(subset(dataset[, 52], dataset[, 31] == "Yes" & q_cond_fin != "Hetero"),
@@ -247,7 +224,6 @@ q6_new <- factor(q6,
                             "Performed partly due to limited data", 
                             "Not performed due to limited data", 
                             "Evaluation not reported"))
-
 year6 <- subset(dataset$Year, dataset[, 31] == "Yes" & q_cond_fin != "Hetero")
 cc1 <- table(year6); cc2 <- round(table(year6)/c(before, after) * 100, 0)
 
@@ -265,13 +241,7 @@ data_perform$timeframe <- revalue(data_perform$timeframe,
                                   c("Before PRISMA-NMA" = paste0("Before PRISMA-NMA:", " ", cc1[1], " ", "(", cc2[1], "%) out of", " ", before),
                                     "After PRISMA-NMA" = paste0("After PRISMA-NMA:", " ", cc1[2], " ", "(", cc2[2], "%) out of", " ", after)))
 
-# Save 'Whether evaluated as planned' at Review level
-tiff("./31_Analysis - Descriptives/Figure S3.tiff", 
-     height = 30, 
-     width = 50, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
+# Get Figure S3
 ggplot(data_perform,
        aes(x = method,
            y = prop)) +
@@ -296,12 +266,10 @@ ggplot(data_perform,
         axis.title = element_text(size = 14),
         axis.text = element_text(size = 14),
         strip.text = element_text(size = 14, face = "bold"))
-dev.off()
-
 
 
 ## Review level (Acknowledging) ----
-# [9] The authors conclude or imply the (im)plausibility of transitivity (as binary)
+# The authors conclude or imply the (im)plausibility of transitivity (as binary)
 q9_bin <- factor(ifelse(is.element(dataset[, 53], c("Not applicable", "Nothing stated")), "No", "Yes"), 
                  levels = c("Yes", "No"))
 # Consider the actual levels after restricting to q9_bin != "No" and the reviews that assessed only heterogeneity
@@ -331,13 +299,7 @@ data_disc$timeframe <- revalue(data_disc$timeframe,
                                c("Before PRISMA-NMA" = paste0("Before PRISMA-NMA:", " ", kk1[1], " ", "(", kk2[1], "%) out of", " ", before),
                                  "After PRISMA-NMA" = paste0("After PRISMA-NMA:", " ", kk1[2], " ", "(", kk2[2], "%) out of", " ", after)))
 
-# Save 'What was concluded about transitivity' at Review level
-tiff("./31_Analysis - Descriptives/Figure S4.tiff", 
-     height = 30, 
-     width = 50, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
+# Get Figure S4
 ggplot(data_disc,
        aes(x = method,
            y = prop)) +
@@ -362,12 +324,10 @@ ggplot(data_disc,
         axis.title = element_text(size = 14),
         axis.text = element_text(size = 14),
         strip.text = element_text(size = 14, face = "bold"))
-dev.off()
-
 
 
 ## Review level (Acknowledging NMA parameters) ----
-#* [11] Among the reviews that discussed transitivity in the context of a NMA parameter, 
+#* Among the reviews that discussed transitivity in the context of a NMA parameter, 
 #* which NMA parameters where considered
 q11 <- ifelse(subset(dataset[, 72:75], dataset[, 71] == "No" & q_cond_fin == "Trans+") == "Yes", 1, 0)
 colnames(q11) <- c("A", # Treatment effects
@@ -399,13 +359,7 @@ data_param$method <- revalue(data_param$method,
                                "C_n_prop" = "Statistical heterogeneity",
                                "D_n_prop" = "Evidence (in)consistency"))
 
-# Save 'Acknowledging parameters' at Review level
-tiff("./31_Analysis - Descriptives/Figure S5.tiff", 
-     height = 30, 
-     width = 50, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
+# Figure S5
 ggplot(data_param,
        aes(x = method,
            y = prop)) +
@@ -430,15 +384,13 @@ ggplot(data_param,
         axis.title = element_text(size = 14),
         axis.text = element_text(size = 14),
         strip.text = element_text(size = 14, face = "bold"))
-dev.off()
-
 
 
 ## Reporting the Table of Characteristics (Structure) ----
-# [12] A Table of Characteristics (ToC) is provided in the publication
+# A Table of Characteristics (ToC) is provided in the publication
 q12 <- factor(dataset[, 78], levels = c("Yes", "No"))
 
-#* [13] If [12] is 'Yes' (and after excluding the systematic reviews without access 
+#* If a ToC is provided in the publication (and after excluding the systematic reviews without access 
 #* to their supplementary material), the Table presents the information at 
 q13 <- ifelse(subset(dataset[, 88:94], q12 == "Yes" & dataset[, 80] != "No access") == "Yes", 1, 0) 
 year13 <- subset(dataset$Year, q12 == "Yes" & dataset[, 80] != "No access") 
@@ -479,7 +431,7 @@ data_toc$method <- revalue(data_toc$method,
                                "D_n_prop" = "D",
                                "E_n_prop" = "E"))
 
-# Create barplot
+# Create Figure S6 (a)
 fig3 <- ggplot(data_toc, 
                aes(x = method,
                    y = prop,
@@ -511,7 +463,6 @@ fig3 <- ggplot(data_toc,
         strip.text = element_text(size = 14, face = "bold"))
 
 
-
 ## Reporting the Table of Characteristics (Found in) ----
 # If a table of characteristics is provided, it can be found in the 
 q13_found <- factor(subset(dataset[, 79], q12 == "Yes" & dataset[, 80] != "No access"),
@@ -532,7 +483,7 @@ data_found$timeframe <- revalue(data_found$timeframe,
                                   "After PRISMA-NMA" = paste0("After PRISMA-NMA:", " ", ee1[2], " ", "(", ee2[2], "%) out of", " ", after)))
 data_found$method <- revalue(data_found$method, c("Main article" = "Article"))
 
-# Create barplot
+# Create Figure S6 (b)
 fig4 <- ggplot(data_found,
                aes(x = method,
                    y = prop,
@@ -563,17 +514,10 @@ fig4 <- ggplot(data_found,
         legend.justification = c(2, 0),
         strip.text = element_text(size = 14, face = "bold"))
 
-# Save 'Table of characteristic structure and found' at Review level
-tiff("./31_Analysis - Descriptives/Figure S6.tiff", 
-     height = 30, 
-     width = 50, 
-     units = "cm", 
-     compression = "lzw", 
-     res = 300)
+# Get Figure S6
 ggarrange(fig3, 
           fig4, 
           ncol = 2, 
           labels = c("(a)", "(b)"),
           common.legend = FALSE, 
           legend = "bottom")
-dev.off()
