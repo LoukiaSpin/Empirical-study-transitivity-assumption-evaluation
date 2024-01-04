@@ -31,7 +31,7 @@ after <- length(dataset$Year[dataset$Year == "After PRISMA-NMA"])
 #* Among the reviews that planned to evaluate transitivity in the Protocol,
 #* what methods did the authors planned to employ
 # Restrict to reviews that did plan at least one method
-q3 <- ifelse(subset(dataset[, c(11, 13, 19, 18, 21:27)], dataset[, 10] == "No") == "Yes", 1, 0)
+q3 <- ifelse(subset(dataset[, c(11, 13, 19, 18, 21:27)], dataset[, 6] == "Available") == "Yes", 1, 0)
 colnames(q3) <- c("A",  # Intervention similarity
                   "B",  # Missing-at-random interventions
                   "C",  # Jointly randomisable participants
@@ -43,14 +43,18 @@ colnames(q3) <- c("A",  # Intervention similarity
                   "G1", # Meta-regression analysis
                   "G2", # Meta-regression analysis trans
                   "H")  # Consistency evaluation
-year3 <- subset(dataset$Year, dataset[, 10] == "No")
+year3 <- subset(dataset$Year, dataset[, 6] == "Available")
+
+# Reviews that used at least one method for transitivity ('Yes')
+q3_new <- factor(ifelse(rowSums(q3) > 0, "Yes", "No"),
+                 levels = c("Yes", "No"))
 
 # Number of reviews that made a protocol available per timeframe
 before_prot <- length(dataset$Year[dataset$Year == "Before PRISMA-NMA" & dataset[, 6] == "Available"])
 after_prot <- length(dataset$Year[dataset$Year == "After PRISMA-NMA" & dataset[, 6] == "Available"])
 
 # Out of those with protocol, how many reported at least one method per timeframe
-vv1 <- table(year3); vv2 <- round(table(year3)/c(before_prot, after_prot) * 100, 0)  
+vv1 <- table(q3_new, year3); vv2 <- round(table(q3_new, year3)[1, ]/c(before_prot, after_prot) * 100, 0)  
 
 # Tabulate: percentage of 'Yes' per method and timeframe
 table_protocol <- data.frame(year3, q3) %>% 
@@ -69,8 +73,8 @@ data_protocol$ind <- c(rep(1, 8), rep(rep(0:1, each = 2), 3), 1, 1)
 colnames(data_protocol) <- c("timeframe", "method", "prop", "count", "indirect", "trans_only")
 data_protocol$prop <- round(data_protocol$prop * 100, 1)
 data_protocol$timeframe <- revalue(data_protocol$timeframe, 
-                                   c("Before PRISMA-NMA" = paste0("Before PRISMA-NMA:", " ", vv1[1], " ", "(", vv2[1], "%) out of", " ", before_prot),
-                                     "After PRISMA-NMA" = paste0("After PRISMA-NMA:", " ", vv1[2], " ", "(", vv2[2], "%) out of", " ", after_prot)))
+                                   c("Before PRISMA-NMA" = paste0("Before PRISMA-NMA:", " ", vv1[1, 1], " ", "(", vv2[1], "%) out of", " ", before_prot),
+                                     "After PRISMA-NMA" = paste0("After PRISMA-NMA:", " ", vv1[1, 2], " ", "(", vv2[2], "%) out of", " ", after_prot)))
 data_protocol$method <- revalue(data_protocol$method, 
                                 c("A_n_prop" = "A", 
                                   "B_n_prop" = "B", 
@@ -121,17 +125,19 @@ ggplot(data_protocol,
 ## Review level (Evaluation methods) ----
 #* Among the reviews that evaluated transitivity, what methods did the authors 
 #* employed to evaluate the transitivity assumption in the review
-# Restrict to reviews that did employ at least one method
-q3_review <- ifelse(subset(dataset[, c(35, 37, 43, 42, 45:51)], dataset[, 34] == "No") == "Yes", 1, 0)
-year3_review <- subset(dataset$Year, dataset[, 34] == "No"); table(year3_review)/c(361, 360)
+q3_review <- ifelse(subset(dataset[, c(35, 37, 43, 42, 45:51)]) == "Yes", 1, 0)
 colnames(q3_review) <- colnames(q3)
 
+# Reviews that used at least one method for transitivity ('Yes')
+q3_review_new <- factor(ifelse(rowSums(q3_review) > 0, "Yes", "No"),
+                        levels = c("Yes", "No"))
+
 # Out of total reviews, how many employed at least one method per timeframe
-ww1 <- table(year3_review); ww2 <- round(table(year3_review)/c(before, after) * 100, 0)
+ww1 <- table(q3_review_new, dataset$Year); ww2 <- round(table(q3_review_new, dataset$Year)/c(before, after) * 100, 0)
 
 # Percentage of 'Yes' per method and timeframe
-table_review <- data.frame(year3_review, q3_review) %>% 
-  group_by(year3_review) %>% 
+table_review <- data.frame(dataset$Year, q3_review) %>% 
+  group_by(dataset$Year) %>% 
   summarise(across(A:H, list(n = ~sum(.x == 1)))) %>%
   rowwise() %>%
   mutate(across(A_n:H_n, list(prop = ~.x / 
@@ -146,8 +152,8 @@ data_review$ind <- c(rep(1, 8), rep(rep(0:1, each = 2), 3), 1, 1)
 colnames(data_review) <- colnames(data_protocol)
 data_review$prop <- round(data_review$prop * 100, 1)
 data_review$timeframe <- revalue(data_review$timeframe, 
-                                 c("Before PRISMA-NMA" = paste0("Before PRISMA-NMA:", " ", ww1[1], " ", "(", ww2[1], "%) out of", " ", before),
-                                   "After PRISMA-NMA" = paste0("After PRISMA-NMA:", " ", ww1[2], " ", "(", ww2[2], "%) out of", " ", after)))
+                                 c("Before PRISMA-NMA" = paste0("Before PRISMA-NMA:", " ", ww1[1, 1], " ", "(", ww2[1, 1], "%) out of", " ", before),
+                                   "After PRISMA-NMA" = paste0("After PRISMA-NMA:", " ", ww1[1, 2], " ", "(", ww2[1, 2], "%) out of", " ", after)))
 data_review$method <- revalue(data_review$method, 
                               c("A_n_prop" = "A", 
                                 "B_n_prop" = "B", 
@@ -206,10 +212,9 @@ q_cond <- ifelse(dataset[, c(35, 37, 43, 42, 46, 48, 50, 51)] == "Yes", 1, 0)
 #' Then, separate between reviews that employed at least one method for transitivity ("Trans+")
 #' from those that used only indirect method(s) for heterogeneity sources or made no evaluation ("Other").
 q_cond_new <- ifelse(rowSums(q_cond) > 0, "Trans+", "Other") 
-q_cond_fin <- ifelse(dataset[, 34] == "Yes", "Yes", q_cond_new)
 
 # Consider the actual levels after restricting to q9_bin != "No" and q_cond_fin == "Trans+"
-q9 <- factor(subset(dataset[, 53], q9_bin != "No" & q_cond_fin == "Trans+"),  
+q9 <- factor(subset(dataset[, 53], q9_bin != "No" & q_cond_new == "Trans+"),  
              levels = c("Transitivity may be plausible", 
                         "Transitivity may be questionable",
                         "Difficult to judge due to limited data"))
@@ -218,7 +223,7 @@ q9 <- factor(subset(dataset[, 53], q9_bin != "No" & q_cond_fin == "Trans+"),
 #* Among the reviews with a conclusion about transitivity, which method did the 
 #* authors use to justify their conclusion
 q3_acknow <- ifelse(subset(dataset[, c(56:58, 60, 59, 61:64)], 
-                           q9_bin != "No" & q_cond_fin == "Trans+") == "Yes", 1, 0) 
+                           q9_bin != "No" & q_cond_new == "Trans+") == "Yes", 1, 0) 
 colnames(q3_acknow) <- c("A", # Limited data
                          "B", # Intervention similarity
                          "C", # Missing-at-random interventions
@@ -228,7 +233,7 @@ colnames(q3_acknow) <- c("A", # Limited data
                          "G", # Subgroup analysis
                          "H", # Meta-regression analysis
                          "I") # Consistency evaluation
-year10 <- subset(dataset$Year, q9_bin == "Yes" & q_cond_fin == "Trans+")  
+year10 <- subset(dataset$Year, q9_bin == "Yes" & q_cond_new == "Trans+") 
 aa1 <- table(year10); aa2 <- round(table(year10)/c(before, after) * 100, 0)
 
 # Percentage of 'Yes' per method, timeframe and conclusion
@@ -428,24 +433,83 @@ fig20 <- ggplot(data20_fin,
 ggarrange(fig19, fig20, labels = c("(a)", "(b)"))
 
 
-## Finding reporting gaps (Results have been gathered from Table 2 and Main Figures)
+## Finding reporting gaps (Results have been gathered from Table 2 and Main Figures) ----
 # At protocol level
+#' % SRs with available protocol (item 1, Table 2)
+with_prot_b <- 15.8  # Before PRISMA-NMA
+with_prot_a <- 42.5  # After PRISMA-NMA
+
+#' % SRs defined transitivity  (item 2, Table 2)
+def_trans_prot_b <- 15.8  # Before PRISMA-NMA
+def_trans_prot_a <- 14.4  # After PRISMA-NMA
+
+#' Restrict to SRs that provided a protocol & consider only methods for transitivity *exclusively*
+q3_restrict_trans_prot <- ifelse(subset(dataset[, c(11, 13, 19, 18, 22, 24, 26, 27)], dataset[, 6] == "Available") == "Yes", 1, 0)
+q3_before_prot <- subset(q3_restrict_trans_prot, year3 == "Before PRISMA-NMA")
+q3_after_prot <- subset(q3_restrict_trans_prot, year3 == "After PRISMA-NMA")
+
+#' % SRs planned 'direct methods' (out of those with protocol)
+plan_dir_prot_b <- round((sum(ifelse(rowSums(q3_before_prot[, 1:4]) > 0, 1, 0)) / dim(q3_before_prot)[1]) * 100, 1)  # Before PRISMA-NMA
+plan_dir_prot_a <- round((sum(ifelse(rowSums(q3_after_prot[, 1:4]) > 0, 1, 0)) / dim(q3_after_prot)[1]) * 100, 1)    # After PRISMA-NMA
+
+#' % SRs planned 'indirect methods' (out of those with protocol)
+plan_ind_prot_b <- round((sum(ifelse(rowSums(q3_before_prot[, 5:8]) > 0, 1, 0)) / dim(q3_before_prot)[1]) * 100, 1)  # Before PRISMA-NMA
+plan_ind_prot_a <- round((sum(ifelse(rowSums(q3_after_prot[, 5:8]) > 0, 1, 0)) / dim(q3_after_prot)[1]) * 100, 1)    # After PRISMA-NMA
+
+#' Bring protocol results together
 data_gap_prot <- 
   data.frame(item = rep(c("Protocol available", "Transitivity defined", "Direct methods", "Indirect methods"), each = 2),
              timeframe = rep(c("Before PRISMA-NMA", "After PRISMA-NMA"), 4),
-             value = c(15.8, 42.5, 15.8, 14.4, 10.1, 9.7, 15.7, 33.4)) # Numbers in %
+             value = c(with_prot_b, with_prot_a, 
+                       def_trans_prot_b, def_trans_prot_a, 
+                       plan_dir_prot_b, plan_dir_prot_a, 
+                       plan_ind_prot_b, plan_ind_prot_a)) # Numbers in %
 
 # Sort the categories to the desired order
 data_gap_prot$item <- factor(data_gap_prot$item,
-                             levels = c("Protocol available", "Transitivity defined", "Direct methods", "Indirect methods"))
+                             levels = c("Protocol available", "Transitivity defined", "Planned & reported", "Direct methods", "Indirect methods"))
 data_gap_prot$timeframe <- factor(data_gap_prot$timeframe,
                                   levels = c("Before PRISMA-NMA", "After PRISMA-NMA"))
 
 # At review level
+#' % SRs defined transitivity (item 4, Table 2)
+def_trans_rev_b <- 36.0  # Before PRISMA-NMA
+def_trans_rev_a <- 24.4  # After PRISMA-NMA
+
+#' Restrict to SRs that planned at least one methods for transitivity *exclusively* 
+q3_restrict_trans_rev <- ifelse(subset(dataset[, c(35, 37, 43, 42, 46, 48, 50, 51)]) == "Yes", 1, 0)
+q3_before_rev <- subset(q3_restrict_trans_rev, dataset$Year == "Before PRISMA-NMA")
+q3_after_rev <- subset(q3_restrict_trans_rev, dataset$Year == "After PRISMA-NMA")
+
+#' % SRs planned 'direct methods' 
+plan_dir_rev_b <- round((sum(ifelse(rowSums(q3_before_rev[, 1:4]) > 0, 1, 0)) / dim(q3_before_rev)[1]) * 100, 1)  # Before PRISMA-NMA
+plan_dir_rev_a <- round((sum(ifelse(rowSums(q3_after_rev[, 1:4]) > 0, 1, 0)) / dim(q3_after_rev)[1]) * 100, 1)    # After PRISMA-NMA
+
+#' % SRs planned 'indirect methods' 
+plan_ind_rev_b <- round((sum(ifelse(rowSums(q3_before_rev[, 5:8]) > 0, 1, 0)) / dim(q3_before_rev)[1]) * 100, 1)  # Before PRISMA-NMA
+plan_ind_rev_a <- round((sum(ifelse(rowSums(q3_after_rev[, 5:8]) > 0, 1, 0)) / dim(q3_after_rev)[1]) * 100, 1)    # After PRISMA-NMA
+
+#' % SRs planned and reported transitivity evaluation (item 5, Table 2)
+report_b <- 52.6  # Before PRISMA-NMA
+report_a <- 70.0  # After PRISMA-NMA
+
+#' % SRs drew conclusions about transitivity (item 7, Table 2)
+conclude_b <- 35.5  # Before PRISMA-NMA
+conclude_a <- 38.1  # After PRISMA-NMA
+
+#' % SRs discussed NMA parameter (item 9, Table 2)
+discuss_b <- 82.0  # Before PRISMA-NMA
+discuss_a <- 68.6  # After PRISMA-NMA
+
 data_gap_rev <- 
   data.frame(item = rep(c("Transitivity defined", "Planned & reported", "Direct methods", "Indirect methods", "Transitivity conclusion", "Discussed parameter"), each = 2),
              timeframe = rep(c("Before PRISMA-NMA", "After PRISMA-NMA"), 6),
-             value = c(36.0, 24.4, 52.5, 70.0, 11.8, 11.0, 40.2, 54.1, 35.5, 38.1, 82.0, 68.6)) # Numbers in %
+             value = c(def_trans_rev_b, def_trans_rev_a, 
+                       report_b, report_a, 
+                       plan_dir_rev_b, plan_dir_rev_a, 
+                       plan_ind_rev_b, plan_ind_rev_a, 
+                       conclude_b, conclude_a, 
+                       discuss_b, discuss_a)) # Numbers in %
 
 # Sort the categories to the desired order
 data_gap_rev$item <- factor(data_gap_rev$item,
@@ -483,6 +547,7 @@ ggplot(data_gap,
             size = 4.5, 
             color = "black",
             fontface = "bold") +
+  facet_grid(~ location, scales = "free_x") +
   scale_fill_manual(name = "Timeframe",
                     breaks = c("Before PRISMA-NMA", "After PRISMA-NMA"),
                     values = c("white", "#0099FF")) +
@@ -495,7 +560,6 @@ ggplot(data_gap,
   labs(x = "",
        y = "Percentage (%)",
        fill = "") +
-  facet_grid(~ location, scales = "free_x") +
   ylim(0, 100) +
   theme_classic() +
   guides(fill = guide_legend(override.aes = list(size = 4, stroke = 1.8), order = 1),
