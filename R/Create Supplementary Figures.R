@@ -144,12 +144,11 @@ q_cond <- ifelse(dataset[, c(35, 37, 43, 42, 46, 48, 50, 51)] == "Yes", 1, 0)
 #' Then, separate between reviews that employed at least one method for transitivity ("Trans+")
 #' from those that used only indirect method(s) for heterogeneity sources ("Hetero").
 q_cond_new <- ifelse(rowSums(q_cond) > 0, "Trans+", "Hetero") 
-q_cond_fin <- ifelse(dataset[, 34] == "Yes", "Yes", q_cond_new)
 
 # Among the reviews with a conclusion about transitivity, this information was found in the 
-q11_where <- ifelse(subset(dataset[, 66:69], q9_bin != "No" & q_cond_fin == "Trans+") == "Yes", 1, 0)
+q11_where <- ifelse(subset(dataset[, 66:69], q9_bin != "No" & q_cond_new == "Trans+") == "Yes", 1, 0)
 colnames(q11_where) <- c("Abstract", "Results", "Discussion", "Conclusions") 
-year11_where <- subset(dataset$Year, q9_bin != "No" & q_cond_fin == "Trans+"); 
+year11_where <- subset(dataset$Year, q9_bin != "No" & q_cond_new == "Trans+"); 
 bb1 <- table(year11_where); bb2 <- round(table(year11_where)/c(before, after) * 100, 0)
 
 # Percentage of 'Yes' per method and timeframe
@@ -214,7 +213,7 @@ ggarrange(fig1,
 #* Among the reviews that explicitly planned transitivity evaluation, did they 
 #* authors perform the evaluation as planned?
 # Correcting dataset[, 32] for explicit evaluation of trans!
-q6 <- revalue(subset(dataset[, 52], dataset[, 31] == "Yes" & q_cond_fin != "Hetero"),
+q6 <- revalue(subset(dataset[, 52], dataset[, 31] == "Yes" & q_cond_new != "Hetero"),  
               c("They performed the evaluation exactly as planned" = "Performed as planned",
                 "They performed some of the planned methods (in [9]) due to limited data" = "Performed partly due to limited data",
                 "They did not report in the Results or Discussion section any transitivity evaluation" = "Evaluation not reported",
@@ -224,7 +223,7 @@ q6_new <- factor(q6,
                             "Performed partly due to limited data", 
                             "Not performed due to limited data", 
                             "Evaluation not reported"))
-year6 <- subset(dataset$Year, dataset[, 31] == "Yes" & q_cond_fin != "Hetero")
+year6 <- subset(dataset$Year, dataset[, 31] == "Yes" & q_cond_new != "Hetero") 
 cc1 <- table(year6); cc2 <- round(table(year6)/c(before, after) * 100, 0)
 
 # Percentage of 'Yes' per method and timeframe
@@ -273,11 +272,11 @@ ggplot(data_perform,
 q9_bin <- factor(ifelse(is.element(dataset[, 53], c("Not applicable", "Nothing stated")), "No", "Yes"), 
                  levels = c("Yes", "No"))
 # Consider the actual levels after restricting to q9_bin != "No" and the reviews that assessed only heterogeneity
-q9 <- factor(subset(dataset[, 53], q9_bin != "No" & q_cond_fin == "Trans+"),  
+q9 <- factor(subset(dataset[, 53], q9_bin != "No" & q_cond_new == "Trans+"),  
              levels = c("Transitivity may be plausible", 
                         "Transitivity may be questionable",
                         "Difficult to judge due to limited data"))
-year9 <- subset(dataset$Year, q9_bin != "No" & q_cond_fin == "Trans+")
+year9 <- subset(dataset$Year, q9_bin != "No" & q_cond_new == "Trans+")
 kk1 <- table(year9); kk2 <- round(table(year9)/c(before, after) * 100, 0)
 
 # Rename the levels
@@ -329,12 +328,12 @@ ggplot(data_disc,
 ## Review level (Acknowledging NMA parameters) ----
 #* Among the reviews that discussed transitivity in the context of a NMA parameter, 
 #* which NMA parameters where considered
-q11 <- ifelse(subset(dataset[, 72:75], dataset[, 71] == "No" & q_cond_fin == "Trans+") == "Yes", 1, 0)
+q11 <- ifelse(subset(dataset[, 72:75], dataset[, 71] == "No" & q_cond_new == "Trans+") == "Yes", 1, 0)
 colnames(q11) <- c("A", # Treatment effects
                    "B", # Intervention ranking
                    "C", # Statistical heterogeneity
                    "D") # Evidence (in)consistency
-year11 <- subset(dataset$Year, dataset[, 71] == "No" & q_cond_fin == "Trans+")
+year11 <- subset(dataset$Year, dataset[, 71] == "No" & q_cond_new == "Trans+")
 dd1 <- table(year11); dd2 <- round(table(year11)/c(before, after) * 100, 0)
 
 # Percentage of 'Yes' per method and timeframe
@@ -521,3 +520,51 @@ ggarrange(fig3,
           labels = c("(a)", "(b)"),
           common.legend = FALSE, 
           legend = "bottom")
+
+
+## Whether PRISMA-NMA is mentioned during 2016 & 2021 ----
+# Reload data to use the original years
+load("./data/Analysis dataset.RData")
+q_prisma <- subset(dataset[, c(3, 96)], is.element(Year, c("2016", "2021")))
+colnames(q_prisma) <- c("year", "prisma_mentioned")
+
+# Rename 'year'
+q_prisma$year <- factor(ifelse(q_prisma$year == 2016, "During 2016", "During 2021"),
+                        levels = c("During 2016", "During 2021"))
+
+# Define sorting
+q_prisma$prisma_mentioned <- factor(q_prisma$prisma_mentioned,
+                                    levels = c("PRISMA-NMA", "PRISMA-MA", "Nothing mentioned"))
+
+# Absolute and relative frequencies
+table_prisma <- q_prisma %>% 
+  count(year, prisma_mentioned) %>% 
+  mutate(prop = n / (dim(q_prisma)[1] / 2))
+
+# Create graph S7
+ggplot(table_prisma,
+       aes(x = prisma_mentioned,
+           y = prop * 100)) +
+  geom_bar(stat = "identity", 
+           position = "stack",
+           fill = "#0099FF") +
+  geom_text(aes(label = paste0(round(prop * 100, 1), "%", " ", "(", n, ")")),
+            hjust = 0.5, 
+            vjust = -0.2,
+            size = 5,
+            colour = "black",
+            position = "stack") +
+  facet_grid(~ year) +
+  labs(x = "",
+       y = "Percentage (%)",
+       colour = "") +
+  ylim(0, 100) +
+  theme_classic() +
+  ggtitle("PRISMA was mentioned in the report") +
+  theme(title = element_text(size = 13, face = "bold"),
+        axis.title = element_text(size = 14),
+        axis.text = element_text(size = 14),
+        legend.position = "bottom",
+        legend.text = element_text(size = 14, colour = "white"),
+        legend.justification = c(2, 0),
+        strip.text = element_text(size = 14, face = "bold"))
