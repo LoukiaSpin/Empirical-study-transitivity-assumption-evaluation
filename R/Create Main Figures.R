@@ -443,9 +443,9 @@ with_prot_a <- 42.5  # After PRISMA-NMA
 def_trans_prot_b <- 15.8  # Before PRISMA-NMA
 def_trans_prot_a <- 14.4  # After PRISMA-NMA
 
-#' Total of systematic reviews reporting at least one direct or indirect method (out of those with protocol) (Figure 1)
-q3_total_before <- sum(c(4, 0, 3, 2, 0, 21, 1, 31, 2, 14, 11))   # Sum *all* numbers in parentheses (Before PRISMA)
-q3_total_after <- sum(c(4, 1, 11, 12, 44, 7, 86, 11, 8, 33, 70)) # Sum *all* numbers in parentheses (After PRISMA)
+#' Total of systematic reviews reporting at least one direct or indirect method (among those with protocol) (Figure 1)
+q3_total_before <- sum(c(4, 0, 3, 2, 0, 21, 1, 31, 2, 14, 11))   # Sum *all* numbers in parentheses from 'dark blue' bars (Before PRISMA)
+q3_total_after <- sum(c(4, 1, 11, 12, 44, 7, 86, 11, 8, 33, 70)) # Sum *all* numbers in parentheses from 'dark blue' bars (After PRISMA)
 
 #' % SRs planned 'direct methods' (out of those with protocol) (Figure 1)
 plan_dir_prot_b <- round(((4 + 0 + 3 + 2) / q3_total_before) * 100, 1)  # Bars A, B, C, D under 'Direct methods' (Before PRISMA)
