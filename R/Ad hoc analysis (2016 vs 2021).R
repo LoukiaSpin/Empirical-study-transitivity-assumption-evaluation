@@ -40,19 +40,38 @@ q2_prop <- round(prop.table(table(q2, year2), 2)*100, 1)
 def_trans_prot_b <- q2_prop[1, 1]  # During 2016
 def_trans_prot_a <- q2_prop[1, 2]  # During 2021
 
-#' Restrict to SRs that provided a protocol & consider only methods for transitivity *exclusively*
-q3_restrict_trans_prot <- ifelse(subset(dataset_new[, c(11, 13, 19, 18, 22, 24, 26, 27)], dataset_new[, 6] == "Available") == "Yes", 1, 0)
+#' Restrict to SRs that provided a protocol & consider at least one direct or indirect method
+q3 <- ifelse(subset(dataset_new[, c(11, 13, 19, 18, 21:27)], dataset_new[, 6] == "Available") == "Yes", 1, 0)
+colnames(q3) <- c("A",  # Intervention similarity
+                  "B",  # Missing-at-random interventions
+                  "C",  # Jointly randomisable participants
+                  "D",  # Comparison similarity
+                  "E1", # Sensitivity analysis
+                  "E2", # Sensitivity analysis trans
+                  "F1", # Subgroup analysis
+                  "F2", # Subgroup analysis trans
+                  "G1", # Meta-regression analysis
+                  "G2", # Meta-regression analysis trans
+                  "H")  # Consistency evaluation
 year3 <- subset(year, dataset_new[, 6] == "Available")
-q3_before_prot <- subset(q3_restrict_trans_prot, year3 == "During 2016")
-q3_after_prot <- subset(q3_restrict_trans_prot, year3 == "During 2021")
 
-#' % SRs planned 'direct methods' (out of those with protocol)
-plan_dir_prot_b <- round((sum(ifelse(rowSums(q3_before_prot[, 1:4]) > 0, 1, 0)) / dim(q3_before_prot)[1]) * 100, 1)  # During 2016
-plan_dir_prot_a <- round((sum(ifelse(rowSums(q3_after_prot[, 1:4]) > 0, 1, 0)) / dim(q3_after_prot)[1]) * 100, 1)    # During 2021
+# Tabulate: percentage of 'Yes' per method and timeframe
+table_protocol <- data.frame(year3, q3) %>% 
+  group_by(year3) %>% 
+  summarise(across(A:H, list(n = ~sum(.x == 1)))) %>%
+  rowwise() 
 
-#' % SRs planned 'indirect methods' (out of those with protocol)
-plan_ind_prot_b <- round((sum(ifelse(rowSums(q3_before_prot[, 5:8]) > 0, 1, 0)) / dim(q3_before_prot)[1]) * 100, 1)  # During 2016
-plan_ind_prot_a <- round((sum(ifelse(rowSums(q3_after_prot[, 5:8]) > 0, 1, 0)) / dim(q3_after_prot)[1]) * 100, 1)    # During 2021
+#' Total of systematic reviews reporting at least one direct or indirect method (out of those with protocol) (in line with Figure 1)
+q3_total_before <- sum(table_protocol[1, 2:12])  # Sum *all* numbers corresponding to 2016
+q3_total_after <- sum(table_protocol[2, 2:12])   # Sum *all* numbers corresponding to 2021
+
+#' % SRs planned 'direct methods' (out of those with protocol) (in line with Figure 1)
+plan_dir_prot_b <- round((sum(table_protocol[1, 2:5]) / q3_total_before) * 100, 1)  # Columns A, B, C, D (Direct methods for 2016)
+plan_dir_prot_a <- round((sum(table_protocol[2, 2:5]) / q3_total_after) * 100, 1)   # Columns A, B, C, D (Direct methods for 2021)
+
+#' % SRs planned 'indirect methods' (out of those with protocol) (in line with Figure 1)
+plan_ind_prot_b <- round((sum(table_protocol[1, c(7, 9, 10, 11, 12)]) / q3_total_before) * 100, 1)  # Columns E2_n, F2_n, G2_n, H_n (Indirect methods for 2016)
+plan_ind_prot_a <- round((sum(table_protocol[2, c(7, 9, 10, 11, 12)]) / q3_total_after) * 100, 1)  # Columns E2_n, F2_n, G2_n, H_n (Indirect methods for 2021)
 
 #' Bring protocol results together
 data_gap_prot <- 
@@ -77,18 +96,27 @@ q4_prop <- round(prop.table(table(q4, year), 2)*100, 1)
 def_trans_rev_b <- q4_prop[1, 1]  # During 2016
 def_trans_rev_a <- q4_prop[1, 2]  # During 2021
 
-#' Restrict to SRs that planned at least one methods for transitivity *exclusively* 
-q3_restrict_trans_rev <- ifelse(subset(dataset_new[, c(35, 37, 43, 42, 46, 48, 50, 51)]) == "Yes", 1, 0)
-q3_before_rev <- subset(q3_restrict_trans_rev, year == "During 2016")
-q3_after_rev <- subset(q3_restrict_trans_rev, year == "During 2021")
+#' SRs that considered at least one direct or indirect method
+q3_review <- ifelse(subset(dataset_new[, c(35, 37, 43, 42, 45:51)]) == "Yes", 1, 0)
+colnames(q3_review) <- colnames(q3)
 
-#' % SRs planned 'direct methods' 
-plan_dir_rev_b <- round((sum(ifelse(rowSums(q3_before_rev[, 1:4]) > 0, 1, 0)) / dim(q3_before_rev)[1]) * 100, 1)  # During 2016
-plan_dir_rev_a <- round((sum(ifelse(rowSums(q3_after_rev[, 1:4]) > 0, 1, 0)) / dim(q3_after_rev)[1]) * 100, 1)    # During 2021
+# Percentage of 'Yes' per method and timeframe
+table_review <- data.frame(year, q3_review) %>% 
+  group_by(year) %>% 
+  summarise(across(A:H, list(n = ~sum(.x == 1)))) %>%
+  rowwise()
 
-#' % SRs planned 'indirect methods' 
-plan_ind_rev_b <- round((sum(ifelse(rowSums(q3_before_rev[, 5:8]) > 0, 1, 0)) / dim(q3_before_rev)[1]) * 100, 1)  # During 2016
-plan_ind_rev_a <- round((sum(ifelse(rowSums(q3_after_rev[, 5:8]) > 0, 1, 0)) / dim(q3_after_rev)[1]) * 100, 1)    # During 2021
+#* Total of systematic reviews reporting at least one direct or indirect method (in line with Figure 2)
+q3_total_before_rev <- sum(table_review[1, 2:12])  # Sum *all* numbers corresponding to 2016
+q3_total_after_rev <- sum(table_review[2, 2:12])   # Sum *all* numbers corresponding to 2021
+
+#' % SRs planned 'direct methods' (in line with Figure 2)
+plan_dir_rev_b <- round((sum(table_review[1, 2:5]) / q3_total_before_rev) * 100, 1)  # Columns A, B, C, D (Direct methods for 2016)
+plan_dir_rev_a <- round((sum(table_review[2, 2:5]) / q3_total_after_rev) * 100, 1)  # Columns A, B, C, D (Direct methods for 2021)
+
+#' % SRs planned 'indirect methods' (in line with Figure 2)
+plan_ind_rev_b <- round((sum(table_review[1, c(7, 9, 10, 11, 12)]) / q3_total_before_rev) * 100, 1)  # Columns E2_n, F2_n, G2_n, H_n (Indirect methods for 2016)
+plan_ind_rev_a <- round((sum(table_review[2, c(7, 9, 10, 11, 12)]) / q3_total_after_rev) * 100, 1)  # Columns E2_n, F2_n, G2_n, H_n (Indirect methods for 2021)
 
 #' % SRs planned and reported transitivity evaluation (item 5, Table 2)
 q_cond <- ifelse(dataset_new[, c(35, 37, 43, 42, 46, 48, 50, 51)] == "Yes", 1, 0)

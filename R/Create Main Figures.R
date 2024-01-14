@@ -443,18 +443,17 @@ with_prot_a <- 42.5  # After PRISMA-NMA
 def_trans_prot_b <- 15.8  # Before PRISMA-NMA
 def_trans_prot_a <- 14.4  # After PRISMA-NMA
 
-#' Restrict to SRs that provided a protocol & consider only methods for transitivity *exclusively*
-q3_restrict_trans_prot <- ifelse(subset(dataset[, c(11, 13, 19, 18, 22, 24, 26, 27)], dataset[, 6] == "Available") == "Yes", 1, 0)
-q3_before_prot <- subset(q3_restrict_trans_prot, year3 == "Before PRISMA-NMA")
-q3_after_prot <- subset(q3_restrict_trans_prot, year3 == "After PRISMA-NMA")
+#' Total of systematic reviews reporting at least one direct or indirect method (out of those with protocol) (Figure 1)
+q3_total_before <- sum(c(4, 0, 3, 2, 0, 21, 1, 31, 2, 14, 11))   # Sum *all* numbers in parentheses (Before PRISMA)
+q3_total_after <- sum(c(4, 1, 11, 12, 44, 7, 86, 11, 8, 33, 70)) # Sum *all* numbers in parentheses (After PRISMA)
 
-#' % SRs planned 'direct methods' (out of those with protocol)
-plan_dir_prot_b <- round((sum(ifelse(rowSums(q3_before_prot[, 1:4]) > 0, 1, 0)) / dim(q3_before_prot)[1]) * 100, 1)  # Before PRISMA-NMA
-plan_dir_prot_a <- round((sum(ifelse(rowSums(q3_after_prot[, 1:4]) > 0, 1, 0)) / dim(q3_after_prot)[1]) * 100, 1)    # After PRISMA-NMA
+#' % SRs planned 'direct methods' (out of those with protocol) (Figure 1)
+plan_dir_prot_b <- round(((4 + 0 + 3 + 2) / q3_total_before) * 100, 1)  # Bars A, B, C, D under 'Direct methods' (Before PRISMA)
+plan_dir_prot_a <- round(((4 + 1 + 11 + 12) / q3_total_after) * 100, 1) # Bars A, B, C, D under 'Direct methods' (After PRISMA)
 
-#' % SRs planned 'indirect methods' (out of those with protocol)
-plan_ind_prot_b <- round((sum(ifelse(rowSums(q3_before_prot[, 5:8]) > 0, 1, 0)) / dim(q3_before_prot)[1]) * 100, 1)  # Before PRISMA-NMA
-plan_ind_prot_a <- round((sum(ifelse(rowSums(q3_after_prot[, 5:8]) > 0, 1, 0)) / dim(q3_after_prot)[1]) * 100, 1)    # After PRISMA-NMA
+#' % SRs planned 'indirect methods' (out of those with protocol) (Figure 1)
+plan_ind_prot_b <- round(((0 + 1 + 2 + 11) / q3_total_before) * 100, 1)  # 'Dark Blue' Bars E, F, G, H under 'Indirect methods' (Before PRISMA)
+plan_ind_prot_a <- round(((7 + 11 + 8 + 70) / q3_total_after) * 100, 1)  # 'Dark Blue' Bars E, F, G, H under 'Indirect methods' (After PRISMA)
 
 #' Bring protocol results together
 data_gap_prot <- 
@@ -476,18 +475,17 @@ data_gap_prot$timeframe <- factor(data_gap_prot$timeframe,
 def_trans_rev_b <- 36.0  # Before PRISMA-NMA
 def_trans_rev_a <- 24.4  # After PRISMA-NMA
 
-#' Restrict to SRs that planned at least one methods for transitivity *exclusively* 
-q3_restrict_trans_rev <- ifelse(subset(dataset[, c(35, 37, 43, 42, 46, 48, 50, 51)]) == "Yes", 1, 0)
-q3_before_rev <- subset(q3_restrict_trans_rev, dataset$Year == "Before PRISMA-NMA")
-q3_after_rev <- subset(q3_restrict_trans_rev, dataset$Year == "After PRISMA-NMA")
+#' Total of systematic reviews reporting at least one direct or indirect method (Figure 2) 
+q3_total_before_rev <- sum(c(29, 11, 13, 8, 133, 13, 45, 3, 68, 15, 176))  # Sum *all* numbers in parentheses (Before PRISMA)
+q3_total_after_rev <- sum(c(16, 0, 16, 27, 98, 16, 54, 9, 35, 10, 254))    # Sum *all* numbers in parentheses (After PRISMA)
 
-#' % SRs planned 'direct methods' 
-plan_dir_rev_b <- round((sum(ifelse(rowSums(q3_before_rev[, 1:4]) > 0, 1, 0)) / dim(q3_before_rev)[1]) * 100, 1)  # Before PRISMA-NMA
-plan_dir_rev_a <- round((sum(ifelse(rowSums(q3_after_rev[, 1:4]) > 0, 1, 0)) / dim(q3_after_rev)[1]) * 100, 1)    # After PRISMA-NMA
+#' % SRs planned 'direct methods' (Figure 2)
+plan_dir_rev_b <- round(((29 + 11 + 13 + 8) / q3_total_before_rev) * 100, 1)  # Bars A, B, C, D under 'Direct methods' (Before PRISMA)
+plan_dir_rev_a <- round(((16 + 0 + 16 + 27) / q3_total_after_rev) * 100, 1)   # Bars A, B, C, D under 'Direct methods' (After PRISMA)
 
-#' % SRs planned 'indirect methods' 
-plan_ind_rev_b <- round((sum(ifelse(rowSums(q3_before_rev[, 5:8]) > 0, 1, 0)) / dim(q3_before_rev)[1]) * 100, 1)  # Before PRISMA-NMA
-plan_ind_rev_a <- round((sum(ifelse(rowSums(q3_after_rev[, 5:8]) > 0, 1, 0)) / dim(q3_after_rev)[1]) * 100, 1)    # After PRISMA-NMA
+#' % SRs planned 'indirect methods' (Figure 2)  
+plan_ind_rev_b <- round(((13 + 3 + 15 + 176) / q3_total_before_rev) * 100, 1)  # 'Dark Blue' Bars E, F, G, H under 'Indirect methods' (Before PRISMA)
+plan_ind_rev_a <- round(((16 + 9 + 10 + 254) / q3_total_after_rev) * 100, 1)  # 'Dark Blue' Bars E, F, G, H under 'Indirect methods' (Before PRISMA)
 
 #' % SRs planned and reported transitivity evaluation (item 5, Table 2)
 report_b <- 52.6  # Before PRISMA-NMA
