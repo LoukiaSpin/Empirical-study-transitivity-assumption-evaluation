@@ -88,10 +88,10 @@ q_cond <- ifelse(dataset[, c(35, 37, 43, 42, 46, 48, 50, 51)] == "Yes", 1, 0)
 #' Note that some of the methods that used consistency may have also used the remaining indirect methods
 #' but for statistical heterogeneity source.
 q_cond_new <- ifelse(rowSums(q_cond) > 0, "Trans+", "Other") 
-q_cond_fin <- ifelse(dataset[, 34] == "Yes", "Yes", q_cond_new)
+#q_cond_fin <- ifelse(dataset[, 34] == "Yes", "Yes", q_cond_new)
 
 # Correcting dataset[, 32] for indirect methods that were explicitly used for trans!
-q5 <- factor(ifelse(dataset[, 32] == "Yes" & q_cond_fin == "Trans+", "Yes", "No"),
+q5 <- factor(ifelse(dataset[, 32] == "Yes" & q_cond_new == "Trans+", "Yes", "No"), 
              levels = c("Yes", "No"))
 
 table(q5)                                     # Total, n
@@ -106,7 +106,7 @@ round(exp(coef(q5_reg))[2], 2); round(exp(confint(q5_reg))[2,], 2)
 #* [6] The authors did *not* state in the methods any plans for transitivity 
 #* evaluation, but evaluation results were found in the manuscript
 # Correcting dataset[, 33] for indirect methods that were explicitly used for trans!
-q6 <- factor(ifelse(dataset[, 33] == "Yes" & q_cond_fin == "Trans+", "Yes", "No"),
+q6 <- factor(ifelse(dataset[, 33] == "Yes" & q_cond_new == "Trans+", "Yes", "No"),
              levels = c("Yes", "No"))
 
 table(q6)                                     # Total, n
@@ -122,7 +122,7 @@ round(exp(coef(q6_reg))[2], 2); round(exp(confint(q6_reg))[2,], 2)
 ## Acknowledging the implication of transitivity evaluation ----
 # [7] The authors conclude or imply the (im)plausibility of transitivity 
 q7 <- factor(ifelse(is.element(dataset[, 53], c("Not applicable", "Nothing stated")) | 
-                      q_cond_fin != "Trans+", "No", "Yes"),
+                      q_cond_new != "Trans+", "No", "Yes"),
              levels = c("Yes", "No"))
 
 sum(table(q7))                                # Condition
